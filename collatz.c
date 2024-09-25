@@ -19,9 +19,11 @@ int main(int argc, char *argv[]) {
     unsigned long long int N;
     unsigned long long int MIN;
     unsigned long long int MAX;
+    char mode[] = {};
     sscanf(argv[1], "%llu", &N);
     sscanf(argv[2], "%llu", &MIN);
     sscanf(argv[3], "%llu", &MAX);
+    sscanf(argv[4], "%s", &mode);
     srand(time(0));
 
     for (unsigned long long int N_counter = 0; N_counter < N; ++N_counter) {
@@ -33,6 +35,8 @@ int main(int argc, char *argv[]) {
         printf("%llu",MAX);
         printf("%c", ',');
         printf("%llu", collatz(RN));
+        printf("%c", ',');
+        printf("%s", mode);
         printf("%c", '\n');
     }
 }
