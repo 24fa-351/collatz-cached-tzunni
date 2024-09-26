@@ -2,18 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-unsigned long long int collatz(unsigned long long int RN) {
-    unsigned long long int step_count = 0;
-    while (RN != 1) {
-        if (RN % 2 == 0) {
-            RN = RN / 2;
-        } else {
-            RN = (RN * 3) + 1;
-        }
-        ++step_count;
-    }
-    return step_count;
-}
+#include "collatz.h"
+#include "cache.h"
 
 int main(int argc, char *argv[]) {
     unsigned long long int N;
@@ -24,6 +14,9 @@ int main(int argc, char *argv[]) {
     sscanf(argv[2], "%llu", &MIN);
     sscanf(argv[3], "%llu", &MAX);
     sscanf(argv[4], "%s", &mode);
+    if (mode == "LRU" || mode == "LFU") {
+        struct LRUCache cache[] = {};
+    }
     srand(time(0));
 
     for (unsigned long long int N_counter = 0; N_counter < N; ++N_counter) {
@@ -34,7 +27,7 @@ int main(int argc, char *argv[]) {
         printf("%c", ',');
         printf("%llu",MAX);
         printf("%c", ',');
-        printf("%llu", collatz(RN));
+        printf("%llu", collatz_wrapper(RN, mode));
         printf("%c", ',');
         printf("%s", mode);
         printf("%c", '\n');
