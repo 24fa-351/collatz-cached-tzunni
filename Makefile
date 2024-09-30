@@ -1,11 +1,11 @@
-col: collatz.c
-	gcc -o collatz collatz.c
+col: main.c
+	gcc -o main main.c cache.c collatz.c
 
 clean:
-	rm collatz
-
-test: col
-	bash test.sh
-
+	rm main
+	
 time: col
 	bash time.sh
+
+cache: col
+	bash cache.sh

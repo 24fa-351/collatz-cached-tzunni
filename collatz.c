@@ -1,35 +1,54 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
 #include "collatz.h"
-#include "cache.h"
+#include "string.h"
 
-int main(int argc, char *argv[]) {
-    unsigned long long int N;
-    unsigned long long int MIN;
-    unsigned long long int MAX;
-    char mode[] = {};
-    sscanf(argv[1], "%llu", &N);
-    sscanf(argv[2], "%llu", &MIN);
-    sscanf(argv[3], "%llu", &MAX);
-    sscanf(argv[4], "%s", &mode);
-    if (mode == "LRU" || mode == "LFU") {
-        struct LRUCache cache[] = {};
+unsigned long long int collatz(unsigned long long int RN) { // core function
+    if (RN % 2 == 0) {
+        RN = RN / 2;
+    } else {
+        RN = (RN * 3) + 1;
     }
-    srand(time(0));
+    return RN;
+}
 
-    for (unsigned long long int N_counter = 0; N_counter < N; ++N_counter) {
-        unsigned long long int RN = (rand() % (MAX - MIN + 1)) + MIN;
-        printf("%llu",RN);
-        printf("%c", ',');
-        printf("%llu",MIN);
-        printf("%c", ',');
-        printf("%llu",MAX);
-        printf("%c", ',');
-        printf("%llu", collatz_wrapper(RN, mode));
-        printf("%c", ',');
-        printf("%s", mode);
-        printf("%c", '\n');
+ unsigned long long int collatz_wrapperBasic(unsigned long long int RN, Cache* cache, char* mode, unsigned long long int* hit, unsigned long long int* miss) {
+    unsigned long long int step_count = 0; // track step count
+    while (RN != 1) {
+        RN = collatz(RN);
+        ++step_count;
     }
+    return step_count;
+}
+
+ unsigned long long int collatz_wrapperLRU(unsigned long long int RN, Cache* cache, char* mode, unsigned long long int* hit, unsigned long long int* miss) {
+    unsigned long long int step_count = 0;
+    int result = lookupLRU(cache, RN); // check if in cache
+    if (result != -1) {
+        ++(*hit);
+        return result;
+    }
+    unsigned long long int old_RN = RN;
+    while (RN != 1) { // iterate through collatz
+        RN = collatz(RN);
+        ++step_count;
+    }
+    insertLRU(cache, old_RN, step_count); // return result to cache
+    ++(*miss);
+    return step_count;
+}
+
+ unsigned long long int collatz_wrapperLFU(unsigned long long int RN, Cache* cache, char* mode, unsigned long long int* hit, unsigned long long int* miss) {
+    unsigned long long int step_count = 0;
+    int result = lookupLFU(cache, RN); // use LFU specific functions
+    if (result != -1) {
+        ++(*hit);
+        return result;
+    }
+    unsigned long long int old_RN = RN;
+    while (RN != 1) {
+        RN = collatz(RN);
+        ++step_count;
+    }
+    insertLFU(cache, old_RN, step_count);
+    ++(*miss);
+    return step_count;
 }
